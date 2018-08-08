@@ -1,0 +1,30 @@
+button {
+    outline: solid 1px black;
+    width: 50px;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button.on {
+    background-color: green;
+}
+
+button.off {
+    background-color: gray;
+}
+
+.popup {
+    width: 100%;
+    text-align: center;
+}
+
+.popupTitle {
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: black;
+    padding-bottom: 5px;
+    border-bottom: 1px solid darkslategray;
+}

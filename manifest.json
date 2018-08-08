@@ -1,0 +1,27 @@
+{
+    "name": "3Play Job Grabber",
+    "version": "1.0",
+    "description": "Grab the jobs you want!",
+    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "page_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/bee_16.png",
+            "32": "images/bee_32.png",
+            "48": "images/bee_48.png",
+            "128": "images/bee_128.png"
+        }
+    },
+    "icons": {
+        "16": "images/bee_16.png",
+        "32": "images/bee_32.png",
+        "48": "images/bee_48.png",
+        "128": "images/bee_128.png"
+    },
+    "options_page": "options.html",
+    "manifest_version": 2
+}
