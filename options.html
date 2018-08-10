@@ -2,23 +2,31 @@
 <html>
 
 <head>
-    <style>
-        button {
-            height: 30px;
-            width: 30px;
-            outline: none;
-            margin: 10px;
-        }
-    </style>
+    <title>3Play Job Grabber - Options</title>
+    <link type="text/css" rel="stylesheet" href="style.css">
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="options.js"></script>
 </head>
 
 <body>
-    <div id="buttonDiv">
-    </div>
-    <div>
-        <p>Choose a different background color!</p>
+    <div id="optionsPane">
+        <h1>3Play Job Grabber</h1>
+        <fieldset>
+            <legend>Refresh Frequency</legend>
+            <div>
+                <input type="radio" id="rdRef_5" name="refreshRate" />
+                <label for="rdRef_5">5 Seconds</label>
+            </div>
+            <div>
+                <input type="radio" id="rdRef_10" name="refreshRate" />
+                <label for="rdRef_10">10 Seconds</label>
+            </div>
+            <div>
+                <input type="radio" id="rdRef_15" name="refreshRate" />
+                <label for="rdRef_15">15 Seconds</label>
+            </div>
+        </fieldset>
     </div>
 </body>
-<script src="options.js"></script>
 
 </html>

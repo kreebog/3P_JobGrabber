@@ -7,8 +7,17 @@
 console.log('3Play_JobGrabber Extension Activated');
 
 chrome.runtime.onInstalled.addListener(function() {
-    chrome.storage.sync.set({ title: '3Play_JobGrabber', enabled: false }, function() {
+    chrome.storage.sync.set({title: '3Play_JobGrabber', enabled: false}, function() {
         logMsg('3Play_JobGrabber: State initialized.');
+    });
+
+    chrome.storage.sync.get('refreshRate', function(result) {
+        if (result.refreshRate === undefined) {
+            logMsg('refreshRate undefined. Default: 10 seconds');
+            chrome.storage.sync.set({refreshRate: 10}, function() {});
+        } else {
+            logMsg('refreshRate=' + result.refreshRate);
+        }
     });
 
     // runs on all pages
@@ -17,7 +26,7 @@ chrome.runtime.onInstalled.addListener(function() {
             {
                 conditions: [
                     new chrome.declarativeContent.PageStateMatcher({
-                        pageUrl: { urlContains: '' } // TODO: add job market URL
+                        pageUrl: {urlContains: ''} // TODO: add job market URL
                     })
                 ],
                 actions: [new chrome.declarativeContent.ShowPageAction()]

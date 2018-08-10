@@ -28,3 +28,13 @@ button.off {
     padding-bottom: 5px;
     border-bottom: 1px solid darkslategray;
 }
+
+#optionsPane {
+    border-color: solid 1px black;
+}
+
+legend {
+    border: solid 1px black;
+    padding: 3px 3px 3px 3px;
+    background-color: white;
+}
