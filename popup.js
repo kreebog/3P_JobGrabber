@@ -1,34 +1,59 @@
-console.log('popup_js.loaded()');
-// let changeColor = document.getElementById('changeColor');
+let fileName = 'popup.js';
 
-// chrome.storage.sync.get('color', function(data) {
-//     changeColor.style.backgroundColor = data.color;
-//     changeColor.setAttribute('value', data.color);
-// });
+configurePopup();
 
-// changeColor.onclick = function(element) {
-//     let color = element.target.value;
-//     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-//         chrome.tabs.executeScript(tabs[0].id, { code: 'document.body.style.backgroundColor = "' + color + '";' });
-//     });
-// };
+function getTitle() {
+    chrome.storage.sync.get(['title'], function(result) {
+        title = result;
+    });
+}
+
+function getEnabled() {
+    chrome.storage.sync.get(['enabled'], function(result) {
+        enabled = result;
+    });
+}
+
+function setExtensionState(title, enabled) {
+    chrome.storage.sync.set({ enabled: enabled }, function() {
+        logMsg(title + ' : setExtensionState() : Extension ' + (enabled ? 'Enabled.' : 'Disabled.'));
+    });
+}
 
 btnToggle.onclick = function(element) {
-    console.log('btnToggle.onClick()');
-
-    if ($('#btnToggle').hasClass('on')) {
-        $('#btnToggle').removeClass('on');
-        $('#btnToggle').addClass('off');
-        $('#btnToggle').html('OFF');
-        console.log('Button Off');
-    } else {
-        $('#btnToggle').removeClass('off');
-        $('#btnToggle').addClass('on');
-        $('#btnToggle').html('ON');
-        console.log('Button On');
-    }
-
-    // $('#btnToggle').chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-    //     chrome.tabs.executeScript(tabs[0].id, { code: 'document.body.style.backgroundColor = "' + color + '";' });
-    // });
+    chrome.storage.sync.get(['title', 'enabled'], function(results) {
+        if (results.enabled) {
+            setExtensionState(results.title, false);
+            $('#btnToggle').removeClass('on');
+            $('#btnToggle').addClass('off');
+            $('#btnToggle').html('OFF');
+        } else {
+            setExtensionState(results.title, true);
+            $('#btnToggle').removeClass('off');
+            $('#btnToggle').addClass('on');
+            $('#btnToggle').html('ON');
+        }
+    });
 };
+
+function configurePopup() {
+    chrome.storage.sync.get(['title', 'enabled'], function(results) {
+        logMsg(results.title + ' : configurePopup() : isEnabled=' + results.enabled);
+        if (results.enabled) {
+            $('#btnToggle').removeClass('off');
+            $('#btnToggle').addClass('on');
+            $('#btnToggle').html('ON');
+        } else {
+            $('#btnToggle').removeClass('on');
+            $('#btnToggle').addClass('off');
+            $('#btnToggle').html('OFF');
+        }
+    });
+}
+
+function logMsg(message) {
+    let queryInfo = { active: true, currentWindow: true };
+    chrome.tabs.query(queryInfo, function(tabs) {
+        chrome.tabs.executeScript(tabs[0].id, { code: 'console.log("' + fileName + ' :: ' + message + '");' });
+    });
+}
