@@ -10,17 +10,17 @@
     "page_action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "16": "images/bee_16.png",
-            "32": "images/bee_32.png",
-            "48": "images/bee_48.png",
-            "128": "images/bee_128.png"
+            "16": "images/bee_yellow_16.png",
+            "32": "images/bee_yellow_32.png",
+            "48": "images/bee_yellow_48.png",
+            "128": "images/bee_yellow_128.png"
         }
     },
     "icons": {
-        "16": "images/bee_16.png",
-        "32": "images/bee_32.png",
-        "48": "images/bee_48.png",
-        "128": "images/bee_128.png"
+        "16": "images/bee_yellow_16.png",
+        "32": "images/bee_yellow_32.png",
+        "48": "images/bee_yellow_48.png",
+        "128": "images/bee_yellow_128.png"
     },
     "options_page": "options.html",
     "manifest_version": 2

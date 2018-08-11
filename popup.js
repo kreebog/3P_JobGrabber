@@ -1,47 +1,62 @@
 let fileName = 'popup.js';
+let settings;
 
-configurePopup();
+init();
 
-function setExtensionState(title, enabled) {
-    chrome.storage.sync.set({enabled: enabled}, function() {
-        logMsg(title, 'setExtensionState() : Extension ' + (enabled ? 'Enabled.' : 'Disabled.'));
+function init() {
+    chrome.storage.sync.get(['title', 'enabled', 'debug', 'refreshRate'], function(results) {
+        settings = results;
+        if (settings.debug) {
+            sSettings = JSON.stringify(settings);
+            // prettier-ignore
+            sSettings = sSettings.replace(/["']/g, '');
+            logMsg('init() : Settings Loaded: ' + sSettings.replace('"', ''));
+        }
+        configurePopup();
+    });
+}
+
+function setExtensionState(enabled) {
+    chrome.storage.sync.set({ enabled: enabled }, function() {
+        settings.enabled = enabled;
+        logMsg('setExtensionState(' + enabled + ') : Extension ' + (enabled ? 'Enabled.' : 'Disabled.'));
+    });
+
+    chrome.runtime.sendMessage({
+        action: 'updateIcon',
+        value: enabled ? 'green' : 'red'
     });
 }
 
 btnToggle.onclick = function(element) {
-    chrome.storage.sync.get(['title', 'enabled'], function(results) {
-        if (results.enabled) {
-            setExtensionState(results.title, false);
-            $('#btnToggle').removeClass('on');
-            $('#btnToggle').addClass('off');
-            $('#btnToggle').html('OFF');
-        } else {
-            setExtensionState(results.title, true);
-            $('#btnToggle').removeClass('off');
-            $('#btnToggle').addClass('on');
-            $('#btnToggle').html('ON');
-        }
-    });
+    if (settings.enabled) {
+        setExtensionState(false);
+        $('#btnToggle').removeClass('on');
+        $('#btnToggle').addClass('off');
+        $('#btnToggle').html('OFF');
+    } else {
+        setExtensionState(true);
+        $('#btnToggle').removeClass('off');
+        $('#btnToggle').addClass('on');
+        $('#btnToggle').html('ON');
+    }
 };
 
 function configurePopup() {
-    chrome.storage.sync.get(['title', 'enabled'], function(results) {
-        logMsg(results.title, 'configurePopup() : isEnabled=' + results.enabled);
-        if (results.enabled) {
-            $('#btnToggle').removeClass('off');
-            $('#btnToggle').addClass('on');
-            $('#btnToggle').html('ON');
-        } else {
-            $('#btnToggle').removeClass('on');
-            $('#btnToggle').addClass('off');
-            $('#btnToggle').html('OFF');
-        }
-    });
+    logMsg('configurePopup() : isEnabled=' + settings.enabled);
+    if (settings.enabled) {
+        $('#btnToggle').removeClass('off');
+        $('#btnToggle').addClass('on');
+        $('#btnToggle').html('ON');
+    } else {
+        $('#btnToggle').removeClass('on');
+        $('#btnToggle').addClass('off');
+        $('#btnToggle').html('OFF');
+    }
 }
 
-function logMsg(title, message) {
-    let queryInfo = {active: true, currentWindow: true};
-    chrome.tabs.query(queryInfo, function(tabs) {
-        chrome.tabs.executeScript(tabs[0].id, {code: 'console.log("' + title + ' -> ' + fileName + ' :: ' + message + '");'});
+function logMsg(message) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.executeScript(tabs[0].id, { code: 'console.log("' + settings.title + ' -> ' + fileName + ' :: ' + message + '");' });
     });
 }

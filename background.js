@@ -3,20 +3,47 @@
 // found in the LICENSE file.
 
 'use strict';
+let debug = true;
 
 console.log('3Play_JobGrabber Extension Activated');
 
 chrome.runtime.onInstalled.addListener(function() {
-    chrome.storage.sync.set({title: '3Play_JobGrabber', enabled: false}, function() {
+    chrome.storage.sync.set({ title: '3Play_JobGrabber', enabled: false }, function() {
         logMsg('3Play_JobGrabber: State initialized.');
+        //        playSound('/sounds/bongo_riff.wav');
+    });
+
+    chrome.storage.sync.set({ debug: debug }, function() {
+        if (debug) {
+            logMsg('3Play_JobGrabber: Debug Mode Enabled.');
+        }
     });
 
     chrome.storage.sync.get('refreshRate', function(result) {
         if (result.refreshRate === undefined) {
             logMsg('refreshRate undefined. Default: 10 seconds');
-            chrome.storage.sync.set({refreshRate: 10}, function() {});
+            chrome.storage.sync.set({ refreshRate: 10 }, function() {});
         } else {
             logMsg('refreshRate=' + result.refreshRate);
+        }
+    });
+
+    chrome.runtime.onMessage.addListener(function(message, callback) {
+        switch (message.action) {
+            case 'updateIcon': {
+                logMsg('updateIcon(' + message.value + ')');
+                let iconImage = '/images/bee_{COLOR}_32.png'.replace('{COLOR}', message.value);
+
+                chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                    chrome.pageAction.setIcon({ tabId: tabs[0].id, path: iconImage });
+                });
+
+                logMsg('updateIcon(' + message.value + ') : Icon set to ' + iconImage);
+                break;
+            }
+            default: {
+                console.log('No message handler for: ' + message.value);
+            }
         }
     });
 
@@ -26,7 +53,7 @@ chrome.runtime.onInstalled.addListener(function() {
             {
                 conditions: [
                     new chrome.declarativeContent.PageStateMatcher({
-                        pageUrl: {urlContains: ''} // TODO: add job market URL
+                        pageUrl: { urlContains: '' } // TODO: add job market URL
                     })
                 ],
                 actions: [new chrome.declarativeContent.ShowPageAction()]
@@ -35,10 +62,13 @@ chrome.runtime.onInstalled.addListener(function() {
     });
 });
 
+// play the sound!
+function playSound(soundFile) {
+    let sound = new Audio();
+    sound.src = soundFile;
+    sound.play();
+}
+
 function logMsg(message) {
     console.log(message);
-    // let queryInfo = { active: true, currentWindow: true };
-    // chrome.tabs.query(queryInfo, function(tabs) {
-    //     chrome.tabs.executeScript(tabs[0].id, { code: 'console.log("' + message + '");' });
-    // });
 }
