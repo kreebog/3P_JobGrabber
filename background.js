@@ -41,8 +41,19 @@ chrome.runtime.onInstalled.addListener(function() {
                 logMsg('updateIcon(' + message.value + ') : Icon set to ' + iconImage);
                 break;
             }
+            case 'playSound': {
+                logMsg('Message: playSound -> ' + message.value);
+                if (message.value == 'NEW_JOB') playSound('glass_clink.wav');
+                break;
+            }
+
+            case 'getMarketTable': {
+                logMsg('Message: getMarketTable');
+                logMsg('\t' + JSON.stringify(message.value));
+                break;
+            }
             default: {
-                console.log('No message handler for: ' + message.value);
+                console.log('No message handler for: ' + message.action);
             }
         }
     });
@@ -53,7 +64,7 @@ chrome.runtime.onInstalled.addListener(function() {
             {
                 conditions: [
                     new chrome.declarativeContent.PageStateMatcher({
-                        pageUrl: { urlContains: '' } // TODO: add job market URL
+                        pageUrl: { urlContains: 'jobs.3playmedia.com/available_jobs' }
                     })
                 ],
                 actions: [new chrome.declarativeContent.ShowPageAction()]

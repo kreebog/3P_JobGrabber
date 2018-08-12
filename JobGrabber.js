@@ -94,6 +94,12 @@ function trackJob(job) {
     }
 
     console.log('NEW JOB: %s (%s)', job.name, job.id);
+
+    chrome.runtime.sendMessage({
+        action: 'playSound',
+        value: 'NEW_JOB'
+    });
+
     jobs.push(job);
 }
 

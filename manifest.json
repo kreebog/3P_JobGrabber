@@ -2,13 +2,14 @@
     "name": "3Play Job Grabber",
     "version": "1.0",
     "description": "Grab the jobs you want!",
-    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "permissions": ["activeTab", "declarativeContent", "storage", "<all_urls>", "tabs"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
     },
     "page_action": {
         "default_popup": "popup.html",
+        "background": "background.html",
         "default_icon": {
             "16": "images/bee_yellow_16.png",
             "32": "images/bee_yellow_32.png",

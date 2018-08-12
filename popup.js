@@ -26,6 +26,8 @@ function setExtensionState(enabled) {
         action: 'updateIcon',
         value: enabled ? 'green' : 'red'
     });
+
+    if (enabled) injectScript();
 }
 
 btnToggle.onclick = function(element) {
@@ -53,6 +55,15 @@ function configurePopup() {
         $('#btnToggle').addClass('off');
         $('#btnToggle').html('OFF');
     }
+}
+
+function injectScript() {
+    logMsg('injectScript() : JobGrabber.js Content Script injected into 3Play Page.');
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.executeScript(tabs[0].id, {
+            file: 'JobGrabber.js'
+        });
+    });
 }
 
 function logMsg(message) {
