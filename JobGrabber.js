@@ -7,9 +7,10 @@ const COL_TOT_RATE = 6;
 const COL_TOT_AMOUNT = 7;
 const COL_DEADLINE = 8;
 
-const REFRESH_RATE = 5000;
+const RANDOM_REFRESH_RANGE = 1000;
 const NEXT_PAGE_DELAY = 1000;
 
+let refreshRate = 5000; // 5 second default
 let jobGrabTimer;
 let pageNum = 1;
 let checkNum = 0;
@@ -18,9 +19,17 @@ let jobs = [];
 function jobGrabRefresh() {
     let url = document.location.href;
     if (pageNum > 1) url = url + '?job_page=' + pageNum;
-
-    console.log('Refreshing market container: %s', url);
     $('#market-container').load(url + ' #market-container', checkJobs);
+}
+
+function getRandomWait() {
+    return Math.floor(Math.random() * RANDOM_REFRESH_RANGE) + 1;
+}
+
+function randomizeRefreshDelay() {
+    let rndWait = getRandomWait() + refreshRate;
+    console.log('Next market-container refresh in ' + rndWait + 'ms.');
+    setTimeout(jobGrabRefresh, rndWait);
 }
 
 function checkJobs() {
@@ -95,10 +104,12 @@ function trackJob(job) {
 
     console.log('NEW JOB: %s (%s)', job.name, job.id);
 
-    chrome.runtime.sendMessage({
-        action: 'playSound',
-        value: 'NEW_JOB'
-    });
+    if (chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+            action: 'playSound',
+            value: 'NEW_JOB'
+        });
+    }
 
     jobs.push(job);
 }
@@ -109,12 +120,14 @@ function checkNextPage() {
         pageNum++;
         console.log('Checking page #' + pageNum);
         clearInterval(jobGrabTimer);
-        setTimeout(jobGrabRefresh, NEXT_PAGE_DELAY);
+        let rndWait = getRandomWait() + NEXT_PAGE_DELAY;
+        console.log('Next page in ' + rndWait + 'ms.');
+        setTimeout(jobGrabRefresh, rndWait);
     } else {
         if (pageNum > 1) {
             console.log('Returning to Page #1');
             pageNum = 1;
-            jobGrabTimer = setInterval(jobGrabRefresh, REFRESH_RATE);
+            jobGrabTimer = setInterval(randomizeRefreshDelay, refreshRate);
         }
     }
 }
@@ -144,4 +157,28 @@ function dumpJobs() {
     console.log(sJobs);
 }
 
-jobGrabTimer = setInterval(jobGrabRefresh, REFRESH_RATE);
+function startGrabber() {
+    console.log('JobGrabber Started...');
+    jobGrabRefresh();
+
+    console.log('Next refresh in %sms.', refreshRate);
+    jobGrabTimer = setInterval(randomizeRefreshDelay, refreshRate);
+}
+
+function stopGrabber() {
+    console.log('JobGrabber Stopped.');
+    clearInterval(jobGrabTimer);
+}
+
+window.addEventListener(
+    'message',
+    function(event) {
+        // We only accept messages from ourselves
+        if (event.source != window) return;
+
+        if (event.data.type && event.data.type == 'FROM_PAGE') {
+            console.log('JOB GRABBER: ' + event.data.text);
+        }
+    },
+    false
+);

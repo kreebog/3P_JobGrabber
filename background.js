@@ -4,52 +4,55 @@
 
 'use strict';
 let debug = true;
+let clinkCount = 0;
 
 console.log('3Play_JobGrabber Extension Activated');
 
 chrome.runtime.onInstalled.addListener(function() {
     chrome.storage.sync.set({ title: '3Play_JobGrabber', enabled: false }, function() {
-        logMsg('3Play_JobGrabber: State initialized.');
+        logPageMsg('3Play_JobGrabber: State initialized.');
         //        playSound('/sounds/bongo_riff.wav');
     });
 
     chrome.storage.sync.set({ debug: debug }, function() {
         if (debug) {
-            logMsg('3Play_JobGrabber: Debug Mode Enabled.');
+            logPageMsg('3Play_JobGrabber: Debug Mode Enabled.');
         }
     });
 
     chrome.storage.sync.get('refreshRate', function(result) {
         if (result.refreshRate === undefined) {
-            logMsg('refreshRate undefined. Default: 10 seconds');
+            logPageMsg('refreshRate undefined. Default: 10 seconds');
             chrome.storage.sync.set({ refreshRate: 10 }, function() {});
         } else {
-            logMsg('refreshRate=' + result.refreshRate);
+            logPageMsg('refreshRate=' + result.refreshRate);
         }
     });
 
     chrome.runtime.onMessage.addListener(function(message, callback) {
         switch (message.action) {
             case 'updateIcon': {
-                logMsg('updateIcon(' + message.value + ')');
+                logPageMsg('updateIcon(' + message.value + ')');
                 let iconImage = '/images/bee_{COLOR}_32.png'.replace('{COLOR}', message.value);
 
                 chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
                     chrome.pageAction.setIcon({ tabId: tabs[0].id, path: iconImage });
                 });
 
-                logMsg('updateIcon(' + message.value + ') : Icon set to ' + iconImage);
+                logPageMsg('updateIcon(' + message.value + ') : Icon set to ' + iconImage);
                 break;
             }
             case 'playSound': {
-                logMsg('Message: playSound -> ' + message.value);
-                if (message.value == 'NEW_JOB') playSound('glass_clink.wav');
+                logPageMsg('Message: playSound -> ' + message.value);
+                if (message.value == 'NEW_JOB') {
+                    clinkCount++;
+                }
                 break;
             }
 
             case 'getMarketTable': {
-                logMsg('Message: getMarketTable');
-                logMsg('\t' + JSON.stringify(message.value));
+                logPageMsg('Message: getMarketTable');
+                logPageMsg('\t' + JSON.stringify(message.value));
                 break;
             }
             default: {
@@ -73,13 +76,22 @@ chrome.runtime.onInstalled.addListener(function() {
     });
 });
 
-// play the sound!
+function playClink() {
+    if (clinkCount > 0) {
+        playSound('sounds/glass_clink.wav');
+        clinkCount--;
+    }
+}
+
+// play a sound!
 function playSound(soundFile) {
     let sound = new Audio();
     sound.src = soundFile;
     sound.play();
 }
 
-function logMsg(message) {
+function logPageMsg(message) {
     console.log(message);
 }
+
+let clinkTimer = setInterval(playClink, 100);
